@@ -1,5 +1,9 @@
 # Three Finger Overview
 
+> **Fork note:** this fork backports the effect to Plasma 6.3, so it also runs
+> on Debian 13 (KWin 6.3.6) and other 6.3 based distributions. The code picks
+> the API the running KWin has, so nothing changes on 6.8.
+
 A KWin effect for KDE Plasma 6. With it, swiping three fingers up or down on
 a touchpad opens Overview and Grid View, which Plasma normally does with four.
 The view follows your fingers as you swipe, so a slow swipe brings Overview
