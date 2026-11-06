@@ -16,7 +16,7 @@ Overview as before.
 
 ## Install
 
-Plasma 6.8, on Wayland.
+Plasma 6.3 or newer, on Wayland (written against 6.8, and running on 6.3 too).
 
 ```bash
 bash tools/install.sh      # install or upgrade, and turn it on
@@ -62,6 +62,10 @@ as Plasma's do.
   animates once the switch happens, instead of following your fingers.
 - Search results come from KRunner with its default setup rather than
   Overview's own.
+- On Plasma 6.3 an effect can't tell whether KWin really started it, and KWin
+  has no guard against starting one full screen effect on top of another: a
+  three finger swipe during the desktop slide or Plasma's own Overview isn't
+  ignored the way it is on 6.8.
 - Swipes made while another full screen effect is running (such as the
   desktop switch slide) are ignored, as in stock Plasma. With the
   [Activate Overview During Desktop Switch](../Activate%20Overview%20During%20Desktop%20Switch)

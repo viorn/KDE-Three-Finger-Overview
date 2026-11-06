@@ -60,7 +60,7 @@ Item {
                     height: bar.columnHeight
                     spacing: Kirigami.Units.smallSpacing
 
-                    required property KWinComponents.VirtualDesktop desktop
+                    required property var desktop
                     required property int index
 
                     Keys.onEnterPressed: activate();
@@ -79,10 +79,10 @@ Item {
                     Keys.onRightPressed: nextItemInFocusChain(!LayoutMirroring.enabled).forceActiveFocus(Qt.TabFocusReason);
 
                     function activate() {
-                        if (KWinComponents.SceneView.currentDesktop === delegate.desktop) {
+                        if (container.currentDesktop === delegate.desktop) {
                             effect.deactivate()
                         } else {
-                            KWinComponents.SceneView.currentDesktop = delegate.desktop;
+                            container.setCurrentDesktop(delegate.desktop);
                         }
                     }
 

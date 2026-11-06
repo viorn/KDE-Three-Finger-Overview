@@ -14,7 +14,7 @@ Item {
     id: desktopView
 
     required property KWinComponents.WindowModel windowModel
-    required property KWinComponents.VirtualDesktop desktop
+    required property var desktop
 
     Repeater {
         model: KWinComponents.WindowFilterModel {

@@ -27,7 +27,8 @@ FocusScope {
     focus: true
 
     readonly property var effect: KWinComponents.SceneView.effect
-    readonly property KWinComponents.Output targetScreen: KWinComponents.SceneView.screen
+    // KWin 6.3 has no Output QML type.
+    readonly property var targetScreen: KWinComponents.SceneView.screen
 
     readonly property bool lightBackground: Math.max(Kirigami.Theme.backgroundColor.r,
                                                      Kirigami.Theme.backgroundColor.g,
@@ -37,7 +38,18 @@ FocusScope {
     property bool organized: false
 
     property bool verticalDesktopBar: KWinComponents.Workspace.desktopGridHeight >= bar.desktopCount && KWinComponents.Workspace.desktopGridHeight != 1
-    property QtObject currentDesktop: KWinComponents.SceneView.currentDesktop
+    // KWin 6.8 switches desktops per view, so the switch follows the fingers on
+    // that screen; KWin 6.3 only has the global Workspace property.
+    readonly property bool viewDesktopSwitch: KWinComponents.SceneView.currentDesktop !== undefined
+    readonly property var currentDesktop: viewDesktopSwitch ? KWinComponents.SceneView.currentDesktop : KWinComponents.Workspace.currentDesktop
+
+    function setCurrentDesktop(desktop) {
+        if (viewDesktopSwitch) {
+            KWinComponents.SceneView.currentDesktop = desktop;
+        } else {
+            KWinComponents.Workspace.currentDesktop = desktop;
+        }
+    }
     property point targetScreenDesktopOffset: effect.desktopOffsetForScreen(targetScreen);
 
     // The values of overviewVal and gridVal might not be 0 on startup,
@@ -141,7 +153,7 @@ FocusScope {
     }
 
     function switchTo(desktop) {
-        KWinComponents.SceneView.currentDesktop = desktop;
+        container.setCurrentDesktop(desktop);
         effect.deactivate();
     }
 
@@ -182,7 +194,7 @@ FocusScope {
         }
         let newIndex = y * container.columns + x;
 
-        KWinComponents.SceneView.currentDesktop = allDesktopHeaps.itemAt(newIndex).desktop;
+        container.setCurrentDesktop(allDesktopHeaps.itemAt(newIndex).desktop);
         allDesktopHeaps.itemAt(newIndex).nestedHeap.focus = true
         allDesktopHeaps.itemAt(newIndex).selectLastItem(invertedDirection);
         return true;
@@ -478,7 +490,7 @@ FocusScope {
                 }
 
 
-                required property KWinComponents.VirtualDesktop desktop
+                required property var desktop
                 required property int index
                 readonly property bool current: currentDesktop === desktop
                 readonly property bool nearCurrent: Math.abs(deltaColumn) <= 1 && Math.abs(deltaRow) <= 1
@@ -638,7 +650,7 @@ FocusScope {
                     TapHandler {
                         acceptedButtons: Qt.LeftButton
                         onTapped: {
-                            container.KWinComponents.SceneView.currentDesktop = mainBackground.desktop;
+                            container.setCurrentDesktop(mainBackground.desktop);
                             container.effect.deactivate();
                         }
                     }

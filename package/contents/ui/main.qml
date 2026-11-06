@@ -59,8 +59,18 @@ SceneEffect {
     // no other full screen effect (Plasma's Overview, the desktop slide, ...) is
     // running.
     property bool running: false
-    onActivated: running = true
-    onDeactivated: running = false
+
+    // KWin 6.8 reports when it actually started and stopped the effect, and
+    // refuses to start one while another full screen effect runs. KWin 6.3 has
+    // neither signal nor that guard: there visible is what KWin shows.
+    Component.onCompleted: {
+        if (typeof effect.activated === "function") {
+            effect.activated.connect(() => effect.running = true);
+            effect.deactivated.connect(() => effect.running = false);
+        } else {
+            effect.visibleChanged.connect(() => effect.running = effect.visible);
+        }
+    }
 
     function start() {
         shutdownTimer.stop();
