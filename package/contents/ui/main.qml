@@ -60,20 +60,45 @@ SceneEffect {
     // running.
     property bool running: false
 
-    // KWin 6.8 reports when it actually started and stopped the effect, and
-    // refuses to start one while another full screen effect runs. KWin 6.3 has
-    // neither signal nor that guard: there visible is what KWin shows.
+    // KWin 6.8 says when it actually started and stopped the effect. KWin 6.3
+    // has neither signal, and its QuickSceneEffect::startInternal() returns
+    // early when another full screen effect is running, leaving visible set
+    // without a view: so there the effect asks Workspace whether it is active.
+    readonly property bool reportsActivation: typeof effect.activated === "function"
+
+    function activeInKWin() {
+        return typeof Workspace.isEffectActive === "function"
+            ? Workspace.isEffectActive("threefingeroverview")
+            : effect.visible;
+    }
+
     Component.onCompleted: {
-        if (typeof effect.activated === "function") {
+        if (reportsActivation) {
             effect.activated.connect(() => effect.running = true);
             effect.deactivated.connect(() => effect.running = false);
         } else {
-            effect.visibleChanged.connect(() => effect.running = effect.visible);
+            effect.visibleChanged.connect(() => effect.running = effect.visible && effect.activeInKWin());
         }
     }
 
     function start() {
         shutdownTimer.stop();
+        if (!reportsActivation) {
+            // KWin may have stopped the effect behind our back (screen locked,
+            // another full screen effect took over): start over instead of
+            // believing the views are already on screen.
+            if (running && !activeInKWin()) {
+                running = false;
+                visible = false;
+            }
+            if (!running) {
+                visible = true;
+                if (!running) {
+                    visible = false;
+                }
+            }
+            return running;
+        }
         if (!running) {
             visible = true;
             if (!running) {

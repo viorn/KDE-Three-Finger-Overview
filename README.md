@@ -66,10 +66,10 @@ as Plasma's do.
   animates once the switch happens, instead of following your fingers.
 - Search results come from KRunner with its default setup rather than
   Overview's own.
-- On Plasma 6.3 an effect can't tell whether KWin really started it, and KWin
-  has no guard against starting one full screen effect on top of another: a
-  three finger swipe during the desktop slide or Plasma's own Overview isn't
-  ignored the way it is on 6.8.
+- On Plasma 6.3 KWin never tells an effect that it started or stopped: the
+  effect asks `Workspace.isEffectActive()` instead. KWin also refuses to start
+  it while another full screen effect is running (the desktop slide, Plasma's
+  own Overview, the lock screen), and a swipe made then is dropped, as on 6.8.
 - Swipes made while another full screen effect is running (such as the
   desktop switch slide) are ignored, as in stock Plasma. With the
   [Activate Overview During Desktop Switch](../Activate%20Overview%20During%20Desktop%20Switch)
